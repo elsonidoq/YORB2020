@@ -33,8 +33,8 @@ class Scene {
 		this.hyperlinkedObjects = []; // array to store interactable hyperlinked meshes
 		this.DEBUG_MODE = false;
 		this.movementCallback = _movementCallback;
-		this.width = (window.innerWidth * 0.9);
-		this.height = (window.innerHeight * 0.7);
+		this.width = (window.innerWidth * 1);
+		this.height = (window.innerHeight * 0.8);
 		this.scene = new THREE.Scene();
 		this.raycaster = new THREE.Raycaster();
 		this.textParser = new DOMParser;
@@ -761,7 +761,7 @@ class Scene {
 		let curveSegments = 3;
 		let message, txt;
 
-		message = "Welcome to the";
+		message = "Welcome to";
 		// params: text, size, depth, curveSegments, bevelThickness, bevelSize, bevelEnabled, mirror
 		txt = this.create3DText(message, 0.25, textDepth, curveSegments, 0.01, 0.01, false, false);
 		txt.position.set(-2, 2.75, 0.5);
@@ -769,7 +769,7 @@ class Scene {
 		this.scene.add(txt);
 
 
-		message = "ITP / IMA Spring Show ";
+		message = "this place";
 		// params: text, size, depth, curveSegments, bevelThickness, bevelSize, bevelEnabled, mirror
 		txt = this.create3DText(message, 1, textDepth, curveSegments, 0.01, 0.01, false, false);
 		txt.position.set(-2, 1.5, 0.0);
@@ -777,13 +777,13 @@ class Scene {
 		this.scene.add(txt);
 
 
-		message = "The E.R.";
+		message = "Room 1";
 		txt = this.create3DText(message, 0.6, textDepth, curveSegments, 0.01, 0.01, false, false);
 		txt.position.set(-11.25, 1.75, -18.5);
 		txt.rotateY(0);
 		this.scene.add(txt);
 
-		message = "Resident's Residence";
+		message = "Room 2";
 		txt = this.create3DText(message, 0.6, textDepth, curveSegments, 0.01, 0.01, false, false);
 		txt.position.set(-12.5, 1.75, -0.75);
 		txt.rotateY(-Math.PI / 2);

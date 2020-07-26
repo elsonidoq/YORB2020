@@ -15,8 +15,14 @@ import Scene from './scene';
 const io = require('socket.io-client');
 const socketPromise = require('./libs/socket.io-promise').promise;
 const hostname = window.location.hostname;
+const paramsMatch = window.location.search.match(/\?code=([a-zA-Z0-9]+)/);
+const accessCode = paramsMatch && paramsMatch.length > 0 && paramsMatch[1];
 
-import * as config from '../config';
+if (!accessCode) {
+	alert('Access code missing. You shall not pass!');
+	throw new Error('Access code missing. You shall not pass!');
+}
+
 import * as mediasoup from 'mediasoup-client';
 import debugModule from 'debug';
 
@@ -134,6 +140,7 @@ window.onload = async () => {
 
 
 async function init() {
+
 	yorbScene.controls.lock();
 	document.getElementById("instructions-overlay").style.visibility = "visible";
 
@@ -157,7 +164,11 @@ function initSocketConnection() {
 	return new Promise(resolve => {
 
 		console.log("Initializing socket.io...");
-		socket = io();
+		socket = io({
+			query: {
+				token: accessCode
+			}
+		});
 		socket.request = socketPromise(socket);
 
 		socket.on('connect', () => { });
@@ -1001,6 +1012,7 @@ async function createTransport(direction) {
 			log('transport closed ... leaving the room and resetting');
 			// leaveRoom();
 			alert("Your connection failed.  Please restart the page");
+			location.reload();
 		}
 	});
 

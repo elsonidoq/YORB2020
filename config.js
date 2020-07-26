@@ -1,18 +1,18 @@
-module.exports = {
+require('dotenv').config();
+
+const config = {
+  accessCode: process.env.ACCESS_CODE,
+  publicIp: process.env.EXPOSED_IP || process.env.SERVER_IP,
+
   // http server ip, port, and peer timeout constant
-  //
-  httpIp: '192.168.1.145',
-  // httpIp: '127.0.0.1',
-  // httpIp: '142.93.6.195',
-  httpPort: 443,
+  httpIp: process.env.SERVER_IP,
+  httpPort: process.env.HTTP_PORT,
   httpPeerStale: 15000,
 
   // ssl certs. we'll start as http instead of https if we don't have
   // these
-  sslCrt: 'certs/fullchain.pem',
-  sslKey: 'certs/privkey.pem',
-  // sslCrt: 'star_itp_io.pem',
-  // sslKey: 'star_itp_io.key',
+  sslCrt: process.env.SSL_CERT || 'certs/fullchain.pem',
+  sslKey: process.env.SSL_KEY || 'certs/privkey.pem',
 
   mediasoup: {
     worker: {
@@ -84,10 +84,24 @@ module.exports = {
     webRtcTransport: {
       listenIps: [
        { ip: '127.0.0.1', announcedIp: null },
-       { ip: '192.168.1.145', announcedIp: null },
-      //  { ip: '142.93.6.195', announcedIp: null },
+       { ip: process.env.SERVER_IP, announcedIp: process.env.EXPOSED_IP },
       ],
       initialAvailableOutgoingBitrate: 800000,
     }
   }
 };
+
+// if we are in production environment, copy over config from .env file:
+if (process.env.NODE_ENV == 'production') {
+  config.sslCrt = process.env.PRODUCTION_CERT;
+  config.sslKey = process.env.PRODUCTION_KEY;
+  config.httpIp = process.env.PRODUCTION_IP;
+  config.publicIp = process.env.PRODUCTION_IP;
+
+  config.mediasoup.webRtcTransport.listenIps = [
+    { ip: '127.0.0.1', announcedIp: null },
+    { ip: process.env.PRODUCTION_IP, announcedIp: null }
+  ];
+}
+
+module.exports = config;

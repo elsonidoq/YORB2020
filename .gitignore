@@ -1,6 +1,7 @@
 .DS_Store
 *.mp3
 .env
+.python-version
 certs/
 node_modules
 public/js/bundle.js

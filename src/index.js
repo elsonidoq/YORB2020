@@ -14,9 +14,10 @@ import Scene from './scene';
 
 const io = require('socket.io-client');
 const socketPromise = require('./libs/socket.io-promise').promise;
-const hostname = window.location.hostname;
+// const hostname = window.location.hostname;
 const paramsMatch = window.location.search.match(/\?code=([a-zA-Z0-9]+)/);
 const accessCode = paramsMatch && paramsMatch.length > 0 && paramsMatch[1];
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
 if (!accessCode) {
 	alert('Access code missing. You shall not pass!');
@@ -138,11 +139,49 @@ window.onload = async () => {
 	startButton.addEventListener('click', init);
 }
 
-
 async function init() {
+	if (isMobile) {
+		document.getElementById("touch-controls").style.visibility = "visible";
+
+		const moveForwardControl = document.getElementById('move-forward');
+		moveForwardControl.addEventListener('touchstart', () => {
+			yorbScene.moveForward = true;
+		});
+		moveForwardControl.addEventListener('touchend', () => {
+			yorbScene.moveForward = false;
+		});
+		moveForwardControl.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			return false;
+		});
+
+		const moveBackwardControl = document.getElementById('move-backward');
+		moveBackwardControl.addEventListener('touchstart', () => {
+			yorbScene.moveBackward = true;
+		});
+		moveBackwardControl.addEventListener('touchend', () => {
+			yorbScene.moveBackward = false;
+		});
+		moveBackwardControl.addEventListener('contextmenu', (e) => {
+			e.preventDefault();
+			return false;
+		});
+	} else {
+		document.getElementById("instructions-overlay").style.visibility = "visible";
+	}
+
+	document.getElementById('fullscreen-control').addEventListener('click', (e) => {
+		toggleFullscreen();
+	});
+
+	document.getElementById('webcam-status-image').addEventListener('click', (e) => {
+		toggleWebcamVideoPauseState();
+	});
+	document.getElementById('microphone-status-image').addEventListener('click', (e) => {
+		toggleWebcamAudioPauseState();
+	});
 
 	yorbScene.controls.lock();
-	document.getElementById("instructions-overlay").style.visibility = "visible";
 
 	// only join room after we user has interacted with DOM (to ensure that media elements play)
 	if (!initialized) {
@@ -1114,6 +1153,18 @@ export function getScreenPausedState() {
 
 export function getScreenAudioPausedState() {
 	return screenShareAudioPaused;
+}
+
+export function toggleFullscreen() {
+	const fullScreenElement = document.mozFullScreenElement
+		|| document.msFullscreenElement
+		|| document.webkitFullscreenElement;
+
+	if (fullScreenElement) {
+		document.exitFullscreen();
+	} else {
+		document.getElementById('main-content-container').requestFullscreen();
+	}
 }
 
 export async function toggleWebcamVideoPauseState() {

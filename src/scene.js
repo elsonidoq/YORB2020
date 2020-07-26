@@ -8,12 +8,14 @@
 
 import { pauseAllConsumersForPeer, resumeAllConsumersForPeer, hackToRemovePlayerTemporarily } from './index.js'
 
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 const THREE = require('./libs/three.min.js');
 const Stats = require('./libs/stats.min.js');
 
 // slightly awkward syntax, but these statements add these functions to THREE
 require('./libs/GLTFLoader.js')(THREE);
-require('./libs/pointerLockControls.js')(THREE);
+require('./libs/pointerLockControls.js')(THREE, isMobile);
 
 class Scene {
 	constructor(
@@ -33,8 +35,9 @@ class Scene {
 		this.hyperlinkedObjects = []; // array to store interactable hyperlinked meshes
 		this.DEBUG_MODE = false;
 		this.movementCallback = _movementCallback;
-		this.width = (window.innerWidth * 1);
-		this.height = (window.innerHeight * 0.8);
+		const container = document.getElementById('main-content-container');
+		this.width = container.offsetWidth;
+		this.height = container.offsetHeight;
 		this.scene = new THREE.Scene();
 		this.raycaster = new THREE.Raycaster();
 		this.textParser = new DOMParser;
@@ -1540,15 +1543,23 @@ class Scene {
 			this.clearControls();
 			this.paused = false;
 			overlay.style.visibility = 'hidden';
-			document.getElementById("instructions-overlay").style.visibility = "visible";
+			if (isMobile) {
+				document.getElementById("touch-controls").style.visibility = "visible";
+			} else {
+				document.getElementById("instructions-overlay").style.visibility = "visible";
+			}
 		});
 
 		this.controls.addEventListener('unlock', () => {
-
 			overlay.style.visibility = 'visible';
 			this.clearControls();
 			this.paused = true;
-			document.getElementById("instructions-overlay").style.visibility = "hidden";
+			if (isMobile) {
+				document.exitFullscreen(); // Just in case
+				document.getElementById("touch-controls").style.visibility = "hidden";
+			} else {
+				document.getElementById("instructions-overlay").style.visibility = "hidden";
+			}
 		});
 
 		document.addEventListener('keydown', (event) => {
@@ -1877,8 +1888,9 @@ class Scene {
 	// Event Handlers 🍽
 
 	onWindowResize(e) {
-		this.width = (window.innerWidth * 0.9);
-		this.height = (window.innerHeight * 0.7);
+		const container = document.getElementById('main-content-container');
+		this.width = container.offsetWidth;
+		this.height = container.offsetHeight;
 		this.camera.aspect = this.width / this.height;
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize(this.width, this.height);
